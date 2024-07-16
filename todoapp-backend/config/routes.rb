@@ -9,6 +9,6 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   namespace :api do
-    jsonapi_resources :tasks
+    jsonapi_resources :tasks, only: %i[index update]
   end
 end
