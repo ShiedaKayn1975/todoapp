@@ -1,0 +1,57 @@
+version: "3"
+
+volumes:
+  gem_cache:
+  tmp_data:
+  log_data:
+  vendor:
+  gem_dir:
+  sockets:
+  redis:
+  bundle:
+  postgres_data:
+
+services:
+  app:
+    platform: linux/x86_64
+    depends_on:
+      - redis
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    command: bash -c "bundle exec rails db:migrate && bundle exec rails db:seed && bundle exec puma -C config/puma.rb"
+    volumes:
+      - bundle:/bundle
+      - tmp_data:/app/tmp
+      - log_data:/app/log
+      - vendor:/app/vendor
+      - gem_dir:/usr/local/bundle
+      - gem_cache:/usr/local/bundle/gems
+      - /var/tmp
+      - type: bind
+        source: .
+        target: /app
+    environment:
+      DATABASE_HOST: db
+      REDIS_HOST: redis
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: todoapp
+      REDIS_URL: redis://redis/1
+  db:
+    image: postgres:14.2-alpine
+    command: "postgres -c 'max_connections=500'"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: todoapp
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6
