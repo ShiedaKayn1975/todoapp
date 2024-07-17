@@ -62,20 +62,35 @@ function App() {
     getTasks();
   }, []);
 
-  const getTasks = () => {
+  const getTasks = (notifcationAfterExecute=true) => {
     client
-      .get("/api/tasks")
+      .get("/api/tasks?filter[completed]=false") // Treat incompleted tasks as the default
       .then((response) => {
         setTasks(response.data.data);
-        toast.success("Get data successfully!");
+        if (notifcationAfterExecute) {
+          toast.success("Get data successfully!");
+        }
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  const updateTask = (id) => {
-
+  const updateTaskComplete = (id, complete) => {
+    client.put(`/api/tasks/${id}`, {
+      data: {
+        id: id,
+        type: 'tasks',
+        attributes: {
+          completed: complete
+        }
+      },
+    }).then(response => {
+      toast.success("Update record successfully!");
+      getTasks(false)
+    }).catch(error => {
+      console.log(error)
+    })
   };
 
   return (
@@ -95,7 +110,8 @@ function App() {
                 sx={{ cursor: "pointer", border: "none" }}
               >
                 <TableCell padding="checkbox">
-                  {!task_data.completed && <Checkbox color="primary" />}
+                  {!task_data.completed && <Checkbox key={index} color="primary" onClick={(event) => updateTaskComplete(task.id, event.target.value)} />
+                }
                 </TableCell>
                 <TableCell>
                   <Stack>
@@ -120,7 +136,7 @@ function App() {
           })}
         </Table>
       </TaskPaper>
-      <ToastContainer />
+      <ToastContainer position="bottom-right" />
     </div>
   );
 }
