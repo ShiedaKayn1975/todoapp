@@ -1,24 +1,50 @@
-# README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+# Todoapp
 
-Things you may want to cover:
+This is a todo application that uses Ruby on Rails, Docker and PostgreSQL.
 
-* Ruby version
+## Prerequisites
 
-* System dependencies
+- Docker
+- Docker Compose
 
-* Configuration
+## Getting Started
+### Clone the Repository
 
-* Database creation
+```
+git clone git@github.com:ShiedaKayn1975/todoapp.git
+cd todoapp/todoapp-backend
+```
 
-* Database initialization
+### Docker Setup
+```
+docker-compose up -d --build
+```
 
-* How to run the test suite
+### Database Setup
+Access to container CLI first
+```
+docker exec -it todoapp-app /bin/sh
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+Create database for development environment
+```
+bundle exec rails db:create
+```
 
-* Deployment instructions
+Initialize seed data
+```
+bundle exec rails db:seed
+```
 
-* ...
+Create database for test environment
+```
+bundle exec rails db:create RAILS_ENV=test
+```
+
+## Running Tests
+To run the test suite, you have to access to CLI:
+```
+docker exec -it todoapp-app /bin/sh
+bundle exec rspec
+```
